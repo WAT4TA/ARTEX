@@ -9,7 +9,8 @@ export function createAppI18n() {
   void instance.use(initReactI18next).init({
     resources,
     lng: DEFAULT_LOCALE,
-    fallbackLng: DEFAULT_LOCALE,
+    // zh-CN holds the source strings, so a key missing from zh-TW still renders.
+    fallbackLng: "zh-CN",
     supportedLngs: [...SUPPORTED_LOCALES],
     load: "currentOnly",
     initAsync: false,
