@@ -328,7 +328,7 @@ test("every fixed UI key resolves and English resources contain no untranslated 
           assert.ok(resources.en.translation[n.arguments[0].text], `${file}: ${n.arguments[0].text}`);
         if (ts.isJsxText(n) && /[\p{Script=Han}]/u.test(n.text))
           assert.ok(
-            file.endsWith("/language-switcher.tsx") && n.text.trim() === "简体中文",
+            file.endsWith("/language-switcher.tsx") && ["简体中文", "繁體中文"].includes(n.text.trim()),
             `${file}: ${n.text.trim()}`,
           );
         ts.forEachChild(n, walk);

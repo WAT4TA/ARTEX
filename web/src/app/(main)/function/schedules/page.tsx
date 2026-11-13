@@ -378,7 +378,7 @@ export default function SchedulesPage() {
   const filteredItems = !normalizedQuery
     ? items
     : items.filter((item) => {
-        const translations = ["zh-CN", "en"].flatMap((locale) => {
+        const translations = ["zh-TW", "zh-CN", "en"].flatMap((locale) => {
           const display = scheduleDisplay(i18n.getFixedT(locale), locale);
           return [display.periodLabel(item), display.windowLabel(item)];
         });

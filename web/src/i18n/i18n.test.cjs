@@ -45,26 +45,36 @@ test("translation resources are complete and preserve interpolation parameters",
     assert.ok(english.trim(), key);
     const params = (text) => [...text.matchAll(/\{\{(.*?)\}\}/g)].map((m) => m[1]).sort();
     assert.deepEqual(params(english), params(resources["zh-CN"].translation[key]), key);
+    assert.deepEqual(params(english), params(resources["zh-TW"].translation[key]), key);
   }
+  // zh-TW is generated from zh-CN; a stale file shows up as a key mismatch here.
+  assert.deepEqual(
+    Object.keys(resources["zh-TW"].translation).sort(),
+    Object.keys(resources["zh-CN"].translation).sort(),
+  );
 });
 
 test("instances start in Chinese, switch synchronously and remain isolated", async () => {
   const first = createAppI18n();
   const second = createAppI18n();
-  assert.equal(first.t("auth.login"), "登录");
+  assert.equal(first.t("auth.login"), "登入");
   await first.changeLanguage("en");
   assert.equal(first.t("auth.login"), "Sign in");
-  assert.equal(second.t("auth.login"), "登录");
+  assert.equal(second.t("auth.login"), "登入");
   assert.equal(first.t("mention.searchType", { kind: "Endpoint" }), "Search Endpoint");
   assert.equal(first.t("pagination.range", { from: 1, to: 10, total: 23 }), "1–10 of 23 records");
   assert.equal(first.t("pagination.range", { from: 1, to: 1, total: 1, count: 1 }), "1–1 of 1 record");
   assert.equal(first.t("mention.all", { count: 1 }), "Showing 1 record");
   await first.changeLanguage("zh-CN");
   assert.equal(first.t("auth.login"), "登录");
+  await first.changeLanguage("zh-TW");
+  assert.equal(first.t("auth.login"), "登入");
 });
 
 test("unsupported saved locale values use the deterministic static default", () => {
-  for (const value of [undefined, null, "", "fr", "corrupted", "zh-TW"]) assert.equal(resolveLocale(value), "zh-CN");
+  for (const value of [undefined, null, "", "fr", "corrupted", "zh-TW", "zh-Hant", "zh"])
+    assert.equal(resolveLocale(value), "zh-TW");
+  for (const value of ["zh-CN", "zh-Hans", "zh-hans-CN", "zh-SG"]) assert.equal(resolveLocale(value), "zh-CN");
   for (const value of ["en", "en-US", "EN-gb"]) assert.equal(resolveLocale(value), "en");
 });
 
@@ -106,7 +116,7 @@ test("settings translation callbacks read the active provider's language after s
   }
   assert.equal(
     renderToStaticMarkup(React.createElement(I18nextProvider, { i18n }, React.createElement(Probe))),
-    "<span>系统与账号</span>",
+    "<span>系統與帳號</span>",
   );
   await i18n.changeLanguage("en");
   // In-flight callbacks do not retain the language from the original render.
@@ -218,7 +228,7 @@ test("render translations invalidate caches while lifecycle translations keep a 
     },
   });
   const chinese = exports.useLiveTranslation();
-  assert.equal(chinese.t("settings.category.system"), "系统与账号");
+  assert.equal(chinese.t("settings.category.system"), "系統與帳號");
   await i18n.changeLanguage("en");
   const english = exports.useLiveTranslation();
   // React Compiler can now invalidate text cached against the render function.
@@ -240,7 +250,7 @@ test("execution labels switch language without translating cached commands or to
   ];
   assert.equal(
     formatToolDetail(parts, "Bash", false, i18n.t.bind(i18n)),
-    `【命令】\n${command}\n\n【输出 ✓】\n${output}`,
+    `【命令】\n${command}\n\n【輸出 ✓】\n${output}`,
   );
   await i18n.changeLanguage("en");
   assert.equal(
@@ -407,7 +417,7 @@ test("task summaries, archive eligibility and category scope labels switch witho
     findings_deleted: 1,
     llm_records_deleted: 0,
   };
-  assert.match(helpers.deleteSummary(counts, translate), /任务已删除.*删除资产 1 条/);
+  assert.match(helpers.deleteSummary(counts, translate), /任務已刪除.*刪除資產 1 條/);
   await i18n.changeLanguage("en");
   assert.equal(
     helpers.deleteSummary(counts, translate),

@@ -9,6 +9,7 @@ import { settingsMessages } from "./settings-messages";
 import { settingsRuntimeMessages } from "./settings-runtime-messages";
 import { taskMessages } from "./task-messages";
 import { termsMessages } from "./terms";
+import zhTWTranslation from "./zh-tw.generated.json";
 
 // Keep both languages together so each product message has an explicit translation.
 export const messages = {
@@ -287,14 +288,24 @@ const statuses: Record<string, readonly (readonly [string, string, string])[]> =
   ],
 };
 
-export const resources = {
-  "zh-CN": { translation: Object.fromEntries(Object.entries(messages).map(([key, pair]) => [key, pair[0]])) },
-  en: { translation: Object.fromEntries(Object.entries(messages).map(([key, pair]) => [key, pair[1]])) },
-};
+// zh-CN strings are the source text; zh-TW is generated from them by
+// scripts/generate-zh-tw.py and checked in as zh-tw.generated.json.
+export const zhCNTranslation: Record<string, string> = Object.fromEntries(
+  Object.entries(messages).map(([key, pair]) => [key, pair[0]]),
+);
+const enTranslation: Record<string, string> = Object.fromEntries(
+  Object.entries(messages).map(([key, pair]) => [key, pair[1]]),
+);
 
 for (const [domain, entries] of Object.entries(statuses)) {
   for (const [value, zh, en] of entries) {
-    resources["zh-CN"].translation[`status.${domain}.${value}`] = zh;
-    resources.en.translation[`status.${domain}.${value}`] = en;
+    zhCNTranslation[`status.${domain}.${value}`] = zh;
+    enTranslation[`status.${domain}.${value}`] = en;
   }
 }
+
+export const resources = {
+  "zh-TW": { translation: zhTWTranslation as Record<string, string> },
+  "zh-CN": { translation: zhCNTranslation },
+  en: { translation: enTranslation },
+};
